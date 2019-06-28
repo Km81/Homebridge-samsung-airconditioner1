@@ -1,5 +1,5 @@
 {
-  "name": "homebridge-samsung-airconditioner",
+  "name": "homebridge-samsung-airconditioner1",
   "version": "0.1.0",
   "description": "node.js plugin for the Samsung smart samsung-airconditioners",
 "main" : "index.js",
