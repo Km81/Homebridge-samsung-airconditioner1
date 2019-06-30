@@ -10,7 +10,7 @@ module.exports = function(homebridge) {
     homebridge.registerAccessory('homebridge-samsung-airconditioner1', 'SamsungAirconditioner1', SamsungAirco1);
 }
 
-function SamsungAirco(log, config) {
+function SamsungAirco1(log, config) {
     this.log = log;
     this.name = config["name"];
     this.ip = config["ip"];
@@ -21,7 +21,7 @@ function SamsungAirco(log, config) {
     this.setOff = false;
 }
 
-SamsungAirco.prototype = {
+SamsungAirco1.prototype = {
 
     execRequest: function(str, body, callback) {
         exec2(str, function(error, stdout, stderr) {
