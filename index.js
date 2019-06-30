@@ -103,6 +103,8 @@ SamsungAirco1.prototype = {
             .setCharacteristic(Characteristic.Manufacturer, 'Samsung')
             .setCharacteristic(Characteristic.Model, 'Air purifier')
             .setCharacteristic(Characteristic.SerialNumber, 'AX40M6581WMD');
+	    
+	    
         return [informationService, this.aircoSamsung];
     },
 
