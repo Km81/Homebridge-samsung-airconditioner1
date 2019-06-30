@@ -104,7 +104,7 @@ SamsungAirco.prototype = {
             .setCharacteristic(Characteristic.Manufacturer, "Samsung")
             .setCharacteristic(Characteristic.Model, "Airconditioner")
             .setCharacteristic(Characteristic.SerialNumber, "Undefined");
-        services.push(infoService);
+        services.push(informationService);
         return [informationService, this.aircoSamsung];
     },
 
