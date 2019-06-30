@@ -99,8 +99,10 @@ SamsungAirco1.prototype = {
 		.on('get', this.getRotationSpeed.bind(this))
 		.on('set', this.setRotationSpeed.bind(this));
 		
-        var informationService = new Service.AccessoryInformation();
-
+        var informationService = new Service.AccessoryInformation()
+            .setCharacteristic(Characteristic.Manufacturer, 'Samsung')
+            .setCharacteristic(Characteristic.Model, 'Air purifier')
+            .setCharacteristic(Characteristic.SerialNumber, 'AX40M6581WMD');
         return [informationService, this.aircoSamsung];
     },
 
