@@ -175,7 +175,7 @@ SamsungAirco1.prototype = {
                 callback(error);
             } else {
                 //callback();
-                body = parseInt(stdout)+1;
+                body = 2-parseInt(stdout);
                 this.log("현재풍속: " + body);
                 this.aircoSamsung.getCharacteristic(Characteristic.RotationSpeed).updateValue(body);
             }
@@ -188,7 +188,7 @@ SamsungAirco1.prototype = {
 
         switch (state) {
 
-            case 1:
+            case 2:
                 var body;
                 this.log("자동풍 설정")
                 str = 'curl -X PUT -d \'{"speedLevel": 0}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1/wind';
@@ -203,7 +203,7 @@ SamsungAirco1.prototype = {
                 }.bind(this));
                 break;
 
-            case 2:
+            case 1:
                 var body;
                 this.log("미풍 설정")
                 str = 'curl -X PUT -d \'{"speedLevel": 1}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1/wind';
@@ -217,53 +217,7 @@ SamsungAirco1.prototype = {
                     }
                 }.bind(this));
                 break;
-                
-            case 3:
-                var body;
-                this.log("약풍 설정")
-                str = 'curl -X PUT -d \'{"speedLevel": 2}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1/wind';
-                this.log(str);
-                this.execRequest(str, body, function(error, stdout, stderr) {
-                    if (error) {
-                        callback(error);
-                    } else {
-                        callback();
-                        this.log(stdout);
-                    }
-                }.bind(this));
-                break;
-                
-            case 4:
-                var body;
-                this.log("강풍 설정")
-                str = 'curl -X PUT -d \'{"speedLevel": 3}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1/wind';
-                this.log(str);
-                this.execRequest(str, body, function(error, stdout, stderr) {
-                    if (error) {
-                        callback(error);
-                    } else {
-                        callback();
-                        this.log(stdout);
-                    }
-                }.bind(this));
-                break;                
-
-            case 5:
-                var body;
-                this.log("터보풍 설정")
-                str = 'curl -X PUT -d \'{"speedLevel": 4}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1/wind';
-                this.log(str);
-                this.execRequest(str, body, function(error, stdout, stderr) {
-                    if (error) {
-                        callback(error);
-                    } else {
-                        callback();
-                        this.log(stdout);
-                    }
-                }.bind(this));
-                break;   
-
-                
+                 
         }
     },
     
