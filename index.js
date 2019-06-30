@@ -100,11 +100,9 @@ SamsungAirco.prototype = {
 		.on('set', this.setRotationSpeed.bind(this));
 		
         var informationService = new Service.AccessoryInformation();
-        infoService
-            .setCharacteristic(Characteristic.Manufacturer, "Samsung")
-            .setCharacteristic(Characteristic.Model, "Airconditioner")
+            .setCharacteristic(Characteristic.Manufacturer, "Samsung");
+            .setCharacteristic(Characteristic.Model, "Airconditioner");
             .setCharacteristic(Characteristic.SerialNumber, "Undefined");
-        services.push(informationService);
         return [informationService, this.aircoSamsung];
     },
 
