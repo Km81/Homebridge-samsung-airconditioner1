@@ -56,7 +56,8 @@ SamsungAirco1.prototype = {
 
         //현재 모드 설정
         this.aircoSamsung.getCharacteristic(Characteristic.TargetHeaterCoolerState)
-            .on('set', this.setCurrentHeaterCoolerState.bind(this));
+            .on('get', this.getCurrentHeaterCoolerState.bind(this))
+	    .on('set', this.setCurrentHeaterCoolerState.bind(this));
    
         //현재 모드 확인
         this.aircoSamsung.getCharacteristic(Characteristic.CurrentHeaterCoolerState)
@@ -91,7 +92,7 @@ SamsungAirco1.prototype = {
         this.aircoSamsung.getCharacteristic(Characteristic.RotationSpeed)
             .setProps({
 		    	minValue: 0,
-		    	maxValue: 5,
+		    	maxValue: 2,
 		    	minStep: 1,
 		    })
 		.on('get', this.getRotationSpeed.bind(this))
