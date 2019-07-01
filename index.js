@@ -66,7 +66,7 @@ SamsungAirco1.prototype = {
         //냉방모드 온도
         this.aircoSamsung.getCharacteristic(Characteristic.CoolingThresholdTemperature)
             .setProps({
-                minValue: 16,
+                minValue: 18,
                 maxValue: 30,
                 minStep: 1
             })
@@ -76,7 +76,7 @@ SamsungAirco1.prototype = {
         //난방모드 온도        
          this.aircoSamsung.getCharacteristic(Characteristic.HeatingThresholdTemperature)
             .setProps({
-                minValue: 16,
+                minValue: 18,
                 maxValue: 30,
                 minStep: 1
             })
