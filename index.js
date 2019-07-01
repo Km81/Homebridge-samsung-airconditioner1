@@ -56,12 +56,10 @@ SamsungAirco1.prototype = {
 
         //현재 모드 설정
         this.aircoSamsung.getCharacteristic(Characteristic.TargetHeaterCoolerState)
-            .on('set', this.setCurrentHeaterCoolerState.bind(this))       
-            .on('get', this.getCurrentHeaterCoolerState.bind(this));
+            .on('set', this.setCurrentHeaterCoolerState.bind(this));
    
         //현재 모드 확인
         this.aircoSamsung.getCharacteristic(Characteristic.CurrentHeaterCoolerState)
-            .on('set', this.setCurrentHeaterCoolerState.bind(this))       
             .on('get', this.getCurrentHeaterCoolerState.bind(this));
 
         //냉방모드 온도
@@ -160,7 +158,7 @@ SamsungAirco1.prototype = {
             } else {
                 //callback();
                 body = parseInt(stdout);
-                this.log("현재온도: " + body);
+                this.log("현재 온도: " + body);
                 this.aircoSamsung.getCharacteristic(Characteristic.CurrentTemperature).updateValue(body);
             }
             callback(null, body); //Mettere qui ritorno di stdout? o solo callback()
@@ -180,7 +178,7 @@ SamsungAirco1.prototype = {
             } else {
                 //callback();
                 body = 2-parseInt(stdout);
-                this.log("현재풍속: " + body);
+                this.log("현재 풍속: " + body);
                 this.aircoSamsung.getCharacteristic(Characteristic.RotationSpeed).updateValue(body);
             }
             callback(null, body);
