@@ -16,9 +16,6 @@ function SamsungAirco1(log, config) {
     this.ip = config["ip"];
     this.token = config["token"];
     this.patchCert = config["patchCert"];
-    this.accessoryName = config["name"];
-    this.setOn = true;
-    this.setOff = false;
 }
 
 SamsungAirco1.prototype = {
@@ -91,19 +88,18 @@ SamsungAirco1.prototype = {
         //바람세기 설정        
         this.aircoSamsung.getCharacteristic(Characteristic.RotationSpeed)
             .setProps({
-		    	minValue: 0,
-		    	maxValue: 2,
-		    	minStep: 1,
-		    })
-		.on('get', this.getRotationSpeed.bind(this))
-		.on('set', this.setRotationSpeed.bind(this));
+	        minValue: 0,
+		maxValue: 2,
+		minStep: 1,
+	    })
+	    .on('get', this.getRotationSpeed.bind(this))
+            .on('set', this.setRotationSpeed.bind(this));
 		
         var informationService = new Service.AccessoryInformation()
             .setCharacteristic(Characteristic.Manufacturer, 'Samsung')
             .setCharacteristic(Characteristic.Model, 'Air conditioner')
             .setCharacteristic(Characteristic.SerialNumber, 'AR06K5170HNQ');
-	    
-	    
+	    	    
         return [informationService, this.aircoSamsung];
     },
 
@@ -210,7 +206,7 @@ SamsungAirco1.prototype = {
                         callback(error);
                     } else {
                         callback();
-                        this.log(stdout);
+                        //this.log(stdout);
                     }
                 }.bind(this));
                 break;
@@ -256,7 +252,7 @@ SamsungAirco1.prototype = {
                         callback(error);
                     } else {
                         callback();
-                        this.log(stdout);
+                        //this.log(stdout);
                     }
                 }.bind(this));
                 break;
@@ -271,7 +267,7 @@ SamsungAirco1.prototype = {
                         callback(error);
                     } else {
                         callback();
-                        this.log(stdout);
+                        //this.log(stdout);
                     }
                 }.bind(this));
                 break;
@@ -312,9 +308,9 @@ SamsungAirco1.prototype = {
         var activeFuncion = function(state) {
             if (state == Characteristic.Active.ACTIVE) {
                 str = 'curl -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + token + '" --cert ' + patchCert + ' --insecure -X PUT -d \'{"Operation" : {\"power"\ : \"On"\}}\' https://' + ip + ':8888/devices/1';
-                console.log("전원 켜짐");
+                //console.log("전원 켜짐");
             } else {
-                console.log("전원 꺼짐");
+                //console.log("전원 꺼짐");
                 str = 'curl -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + token + '" --cert ' + patchCert + ' --insecure -X PUT -d \'{"Operation" : {\"power"\ : \"Off"\}}\' https://' + ip + ':8888/devices/1';
             }
         }
@@ -324,7 +320,7 @@ SamsungAirco1.prototype = {
             if (error) {
             } else {
                 //callback();
-                this.log(stdout);
+                this.log(DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss"));
             }
         }.bind(this));
         callback();
@@ -348,7 +344,7 @@ SamsungAirco1.prototype = {
                     //this.log("제습청정모드 확인");                	
                     callback(null, Characteristic.CurrentHeaterCoolerState.HEATING);
                 } else if (this.response == "Auto" || this.response == "Wind") {
-                	//this.log("공기청정모드 확인");
+                    //this.log("공기청정모드 확인");
                     callback(null, Characteristic.CurrentHeaterCoolerState.IDLE);
                 } else
                     this.log(this.response + "는 설정에 없는 모드 입니다");
