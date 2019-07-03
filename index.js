@@ -298,32 +298,38 @@ SamsungAirco1.prototype = {
 
     },
 
-    setActive: function(state, callback) {
-        var body;
-        var token, ip, patchCert;
-        token = this.token;
-        ip = this.ip;
-        patchCert = this.patchCert;
-        
-        var activeFuncion = function(state) {
-            if (state == Characteristic.Active.ACTIVE) {
-                str = 'curl -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + token + '" --cert ' + patchCert + ' --insecure -X PUT -d \'{"Operation" : {\"power"\ : \"On"\}}\' https://' + ip + ':8888/devices/1';
-                //console.log("전원 켜짐");
-            } else {
-                //console.log("전원 꺼짐");
-                str = 'curl -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + token + '" --cert ' + patchCert + ' --insecure -X PUT -d \'{"Operation" : {\"power"\ : \"Off"\}}\' https://' + ip + ':8888/devices/1';
-            }
-        }
-        activeFuncion(state);
+    setActive: function(value, callback) {
 
-        this.execRequest(str, body, function(error, stdout, stderr) {
-            if (error) {
-            } else {
-                //callback();
-                this.log(DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss"));
-            }
-        }.bind(this));
-        callback();
+        switch (value) {
+
+            case Characteristic.Active.ACTIVE:
+                var body;
+                //this.log("켜기 설정");
+                str = 'curl -X PUT -d \'{"Operation": {"power" : "On"}}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/0';
+                this.execRequest(str, body, function(error, stdout, stderr) {
+                    if (error) {
+                        callback(error);
+                    } else {
+                        callback();
+                        //this.log(stdout);
+                    }
+                }.bind(this));
+                break;
+
+            case Characteristic.Active.INACTIVE:
+                var body;
+                //this.log("끄기 설정");
+                str = 'curl -X PUT -d \'{"Operation": {"power" : "Off"}}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/0';
+                this.execRequest(str, body, function(error, stdout, stderr) {
+                    if (error) {
+                        callback(error);
+                    } else {
+                        callback();
+                        //this.log(stdout);
+                    }
+                }.bind(this));
+                break;
+         }
     },
 
     getCurrentHeaterCoolerState: function(callback) {
