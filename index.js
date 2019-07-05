@@ -83,7 +83,12 @@ SamsungAirco1.prototype = {
         //스윙모드 설정
         this.aircoSamsung.getCharacteristic(Characteristic.SwingMode)
             .on('get', this.getSwingMode.bind(this))
-            .on('set', this.setSwingMode.bind(this));  
+            .on('set', this.setSwingMode.bind(this));
+	   
+        //자동청소 설정
+        this.aircoSamsung.getCharacteristic(Characteristic.LockPhysicalControls)
+            .on('get', this.getLockPhysicalControls.bind(this))
+            .on('set', this.setLockPhysicalControls.bind(this));
 
         //바람세기 설정        
         this.aircoSamsung.getCharacteristic(Characteristic.RotationSpeed)
@@ -213,7 +218,66 @@ SamsungAirco1.prototype = {
                  
         }
     },
+    getLockPhysicalControls: function(callback) {
+        var str;
+        var body;
+        str = 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure -X GET https://' + this.ip + ':8888/devices|jq \'.Devices[0].Mode.options[2]\'';
+
+        this.execRequest(str, body, function(error, stdout, stderr) {
+            if (error) {
+                callback(error);
+            } else {
+                this.response = stdout;
+                this.response = this.response.substr(1, this.response.length - 3);
+            if (this.response == "Autoclean_Off") {
+                callback(null, Characteristic.LockPhysicalControls.CONTROL_LOCK_DISABLED);
+                //this.log("자동청소해제 확인");
+            } else if (this.response == "Autoclean_On") {
+                //this.log("자동청소 확인");
+                callback(null, Characteristic.LockPhysicalControls.CONTROL_LOCK_ENABLED);
+            } else
+                this.log(this.response + "자동청소 확인 오류");
+            }
+        }.bind(this));
+
+    },
     
+    setLockPhysicalControls: function(state, callback) {
+
+        switch (state) {
+
+            case Characteristic.LockPhysicalControls.CONTROL_LOCK_ENABLED:
+                var body;
+                //this.log("자동청소 설정")
+                str = 'curl -X PUT -d \'{"options": ["Autoclean_On"]}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1/mode';
+
+                this.execRequest(str, body, function(error, stdout, stderr) {
+                    if (error) {
+                        callback(error);
+                    } else {
+                        callback();
+                        //this.log(stdout);
+                    }
+                }.bind(this));
+                break;
+
+            case Characteristic.LockPhysicalControls.CONTROL_LOCK_DISABLED:
+                var body;
+                //this.log("자동청소해제 설정")
+                str = 'curl -X PUT -d \'{"options": ["Autoclean_Off"]}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1/mode';
+ 
+                this.execRequest(str, body, function(error, stdout, stderr) {
+                    if (error) {
+                        callback(error);
+                    } else {
+                        callback();
+                        //this.log(stdout);
+                    }
+                }.bind(this));
+                break;
+        }
+    },
+	
     getSwingMode: function(callback) {
         var str;
         var body;
