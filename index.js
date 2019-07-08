@@ -127,6 +127,7 @@ SamsungAirco1.prototype = {
     },
 
     setTargetTemperature: function(body, callback) {
+        var body;	 
         str = 'curl -X PUT -d \'{"desired": ' + body + '}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1/temperatures/0';
 
         this.execRequest(str, body, function(error, stdout, stderr) {
