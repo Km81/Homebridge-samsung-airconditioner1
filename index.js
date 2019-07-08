@@ -94,7 +94,7 @@ SamsungAirco1.prototype = {
         this.aircoSamsung.getCharacteristic(Characteristic.RotationSpeed)
             .setProps({
                 minValue: 0,
-                maxValue: 3,
+                maxValue: 2,
                 minStep: 1,
             })
             .on('get', this.getRotationSpeed.bind(this))
@@ -162,9 +162,15 @@ SamsungAirco1.prototype = {
             if (error) {
                 callback(error);
             } else {
-                body = 2-parseInt(stdout);
-                callback(null, body);
-                //this.log("현재 풍속: " + body);
+                body = parseInt(stdout);
+            if (body == 0) {
+                callback(null, 2);
+                //this.log("자동풍 확인");
+            } else if (body == 1 || body == 2 || body == 3 || body == 4) {
+                //this.log("미풍 등 확인");
+                callback(null, 1);
+            } else
+		this.log("풍속 확인 오류");
             }
         }.bind(this));
     },
