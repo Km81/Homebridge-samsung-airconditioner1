@@ -265,6 +265,7 @@ SamsungAirco1.prototype = {
         var body;
         str = 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure -X GET https://' + this.ip + ':8888/devices|jq \'.Devices[0].Wind.direction\'';
 
+
         this.execRequest(str, body, function(error, stdout, stderr) {
             if (error) {
                 callback(error);
@@ -291,7 +292,7 @@ SamsungAirco1.prototype = {
             case Characteristic.SwingMode.SWING_ENABLED:
                 var body;
                 //this.log("회전 설정")
-                str = 'curl -X PUT -d \'{"direction": "Up_And_Low"}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1/mode';
+                str = 'curl -X PUT -d \'{"direction": "Up_And_Low"}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1/wind';
 
                 this.execRequest(str, body, function(error, stdout, stderr) {
                     if (error) {
@@ -305,7 +306,7 @@ SamsungAirco1.prototype = {
             case Characteristic.SwingMode.SWING_DISABLED:
                 var body;
                 //this.log("고정 설정")
-                str = 'curl -X PUT -d \'{"direction": "Fix"}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1/mode';
+                str = 'curl -X PUT -d \'{"direction": "Fix"}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1/wind';
  
                 this.execRequest(str, body, function(error, stdout, stderr) {
                     if (error) {
