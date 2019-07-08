@@ -112,7 +112,8 @@ SamsungAirco1.prototype = {
     //services
 
     getTargetTemperature: function(callback) {
-        var body;
+	var str;
+	var body;
         str = 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure -X GET https://' + this.ip + ':8888/devices|jq \'.Devices[0].Temperatures[0].desired\'';
 
         this.execRequest(str, body, function(error, stdout, stderr) {
@@ -127,7 +128,8 @@ SamsungAirco1.prototype = {
     },
 
     setTargetTemperature: function(body, callback) {
-        var body;	 
+	var str;
+	var body;	 
         str = 'curl -X PUT -d \'{"desired": ' + body + '}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1/temperatures/0';
 
         this.execRequest(str, body, function(error, stdout, stderr) {
@@ -141,7 +143,8 @@ SamsungAirco1.prototype = {
     },
     
     getCurrentTemperature: function(callback) {
-        var body;
+	var str;
+	var body;
         str = 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure -X GET https://' + this.ip + ':8888/devices|jq \'.Devices[0].Temperatures[0].current\'';
  
         this.execRequest(str, body, function(error, stdout, stderr) {
@@ -156,7 +159,8 @@ SamsungAirco1.prototype = {
     },
 
     getRotationSpeed: function(callback) {
-        var body;
+	var str;
+	var body;
         str = 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure -X GET https://' + this.ip + ':8888/devices|jq \'.Devices[0].Wind.speedLevel\'';
 
         this.execRequest(str, body, function(error, stdout, stderr) {
@@ -181,7 +185,8 @@ SamsungAirco1.prototype = {
         switch (state) {
 
             case 2:
-                var body;
+	        var str;
+	        var body;
                 //this.log("자동풍 설정")
                 str = 'curl -X PUT -d \'{"speedLevel": 0}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1/wind';
  
@@ -195,7 +200,8 @@ SamsungAirco1.prototype = {
                 break;
 
             case 1:
-                var body;
+	        var str;
+	        var body;
                 //this.log("미풍 설정")
                 str = 'curl -X PUT -d \'{"speedLevel": 1}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1/wind';
 
@@ -212,7 +218,8 @@ SamsungAirco1.prototype = {
     },
     
     getLockPhysicalControls: function(callback) {
-        var body;
+	var str;
+	var body;
         str = 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure -X GET https://' + this.ip + ':8888/devices|jq \'.Devices[0].Mode.options[2]\'';
 
         this.execRequest(str, body, function(error, stdout, stderr) {
@@ -239,7 +246,8 @@ SamsungAirco1.prototype = {
         switch (state) {
 
             case Characteristic.LockPhysicalControls.CONTROL_LOCK_ENABLED:
-                var body;
+	        var str;
+	        var body;
                 //this.log("자동청소 설정")
                 str = 'curl -X PUT -d \'{"options": ["Autoclean_On"]}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1/mode';
 
@@ -253,7 +261,8 @@ SamsungAirco1.prototype = {
                 break;
 
             case Characteristic.LockPhysicalControls.CONTROL_LOCK_DISABLED:
-                var body;
+	        var str;
+	        var body;
                 //this.log("자동청소해제 설정")
                 str = 'curl -X PUT -d \'{"options": ["Autoclean_Off"]}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1/mode';
  
@@ -269,7 +278,8 @@ SamsungAirco1.prototype = {
     },
 	
     getSwingMode: function(callback) {
-        var body;
+	var str;
+	var body;
         str = 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure -X GET https://' + this.ip + ':8888/devices|jq \'.Devices[0].Wind.direction\'';
 
 
@@ -297,7 +307,8 @@ SamsungAirco1.prototype = {
         switch (state) {
 
             case Characteristic.SwingMode.SWING_ENABLED:
-                var body;
+	        var str;
+	        var body;
                 //this.log("회전 설정")
                 str = 'curl -X PUT -d \'{"direction": "Up_And_Low"}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1/wind';
 
@@ -311,7 +322,8 @@ SamsungAirco1.prototype = {
                 break;
 
             case Characteristic.SwingMode.SWING_DISABLED:
-                var body;
+	        var str;
+	        var body;
                 //this.log("고정 설정")
                 str = 'curl -X PUT -d \'{"direction": "Fix"}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1/wind';
  
@@ -327,7 +339,8 @@ SamsungAirco1.prototype = {
     },
     
     getActive: function(callback) {
-        var body;
+	var str;
+	var body;
         str = 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure -X GET https://' + this.ip + ':8888/devices|jq \'.Devices[0].Operation.power\'';
 
 
@@ -355,7 +368,8 @@ SamsungAirco1.prototype = {
         switch (state) {
 
             case Characteristic.Active.ACTIVE:
-                var body;
+	        var str;
+	        var body;
                 //this.log("켜기 설정");
                 str = 'curl -X PUT -d \'{"Operation": {"power" : "On"}}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1';
                 this.execRequest(str, body, function(error, stdout, stderr) {
@@ -368,7 +382,8 @@ SamsungAirco1.prototype = {
                 break;
 
             case Characteristic.Active.INACTIVE:
-                var body;
+	        var str;
+	        var body;
                 //this.log("끄기 설정");
                 str = 'curl -X PUT -d \'{"Operation": {"power" : "Off"}}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1';
                 this.execRequest(str, body, function(error, stdout, stderr) {
@@ -383,7 +398,8 @@ SamsungAirco1.prototype = {
     },
 
     getCurrentHeaterCoolerState: function(callback) {
-        var body;
+	var str;
+	var body;
         str = 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure -X GET https://' + this.ip + ':8888/devices|jq \'.Devices[0].Mode.modes[0]\'';
  
         this.execRequest(str, body, function(error, stdout, stderr) {
@@ -408,7 +424,8 @@ SamsungAirco1.prototype = {
     },
 	
      getTargetHeaterCoolerState: function(callback) {
-        var body;
+	var str;
+	var body;
         str = 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure -X GET https://' + this.ip + ':8888/devices|jq \'.Devices[0].Mode.modes[0]\'';
  
         this.execRequest(str, body, function(error, stdout, stderr) {
@@ -437,7 +454,8 @@ SamsungAirco1.prototype = {
         switch (state) {
 
             case Characteristic.TargetHeaterCoolerState.AUTO:
-                var body;
+	        var str;
+	        var body;
                 //this.log("공기청정모드로 설정");
                 str = 'curl -X PUT -d \'{"modes": ["Wind"]}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1/mode';
                 this.aircoSamsung.getCharacteristic(Characteristic.CurrentHeaterCoolerState).updateValue(1);
@@ -452,7 +470,8 @@ SamsungAirco1.prototype = {
                 break;
 
             case Characteristic.TargetHeaterCoolerState.HEAT:
-                var body;
+	        var str;
+	        var body;
                 //this.log("제습청정모드로 설정");
                 str = 'curl -X PUT -d \'{"modes": ["DryClean"]}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1/mode';
                 this.aircoSamsung.getCharacteristic(Characteristic.CurrentHeaterCoolerState).updateValue(2);
@@ -467,7 +486,8 @@ SamsungAirco1.prototype = {
                 break;
                 
             case Characteristic.TargetHeaterCoolerState.COOL:
-                var body;
+	        var str;
+	        var body;
                 //this.log("냉방청정모드로 설정");
                 str = 'curl -X PUT -d \'{"modes": ["CoolClean"]}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1/mode';
                 this.aircoSamsung.getCharacteristic(Characteristic.CurrentHeaterCoolerState).updateValue(3);
