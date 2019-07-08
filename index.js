@@ -6,10 +6,10 @@ module.exports = function(homebridge) {
     Characteristic = homebridge.hap.Characteristic;
     Accessory = homebridge.hap.Accessory;
     //UUIDGen = homebridge.hap.uuid;
-    homebridge.registerAccessory('homebridge-samsung-airconditioner', 'SamsungAirconditioner', SamsungAirco);
+    homebridge.registerAccessory('homebridge-samsung-airconditioner1', 'SamsungAirconditioner1', SamsungAirco1);
 }
 
-function SamsungAirco(log, config) {
+function SamsungAirco1(log, config) {
     this.log = log;
     this.name = config["name"];
     this.ip = config["ip"];
@@ -17,7 +17,7 @@ function SamsungAirco(log, config) {
     this.patchCert = config["patchCert"];
 }
 
-SamsungAirco.prototype = {
+SamsungAirco1.prototype = {
 
     execRequest: function(str, body, callback) {
         exec2(str, function(error, stdout, stderr) {
