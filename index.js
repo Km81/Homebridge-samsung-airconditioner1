@@ -66,9 +66,38 @@ SamsungAirco1.prototype = {
                 maxValue: 30,
                 minStep: 1
             })
-            .on('get', this.getTargetTemperature.bind(this))
+            .on('get', this.getCoolingTargetTemperature.bind(this))
             .on('set', this.setTargetTemperature.bind(this)); 
 
+        //난방모드 온도        
+         this.aircoSamsung.getCharacteristic(Characteristic.HeatingThresholdTemperature)
+            .setProps({
+                minValue: 18,
+                maxValue: 30,
+                minStep: 1
+            })
+            .on('get', this.getHeatingTargetTemperature.bind(this))
+            .on('set', this.setTargetTemperature.bind(this)); 
+        
+        //스윙모드 설정
+        this.aircoSamsung.getCharacteristic(Characteristic.SwingMode)
+            .on('get', this.getSwingMode.bind(this))
+            .on('set', this.setSwingMode.bind(this));  
+
+        //자동청소 설정
+        this.aircoSamsung.getCharacteristic(Characteristic.LockPhysicalControls)
+            .on('get', this.getLockPhysicalControls.bind(this))
+            .on('set', this.setLockPhysicalControls.bind(this));  
+	    	    
+        //바람세기 설정        
+        this.aircoSamsung.getCharacteristic(Characteristic.RotationSpeed)
+            .setProps({
+                minValue: 0,
+                maxValue: 2,
+                minStep: 1,
+            })
+            .on('get', this.getRotationSpeed.bind(this))
+            .on('set', this.setRotationSpeed.bind(this));
 		
         var informationService = new Service.AccessoryInformation()
             .setCharacteristic(Characteristic.Manufacturer, 'Samsung')
@@ -81,7 +110,7 @@ SamsungAirco1.prototype = {
 
     //services
 
-    getTargetTemperature: function(callback) {
+    getCoolingTargetTemperature: function(callback) {
 	var str;
 	var body;
         str = 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure -X GET https://' + this.ip + ':8888/devices|jq \'.Devices[0].Temperatures[0].desired\'';
@@ -95,6 +124,11 @@ SamsungAirco1.prototype = {
                 //this.log("희망온도 확인 : " + body);
             }
         }.bind(this))
+    },
+
+    getHeatingTargetTemperature: function(callback) {
+          callback(null, this.getCoolingTargetTemperature());          
+           //this.log("희망온도 확인 : " + this.getCoolingTargetTemperature());
     },
 
     setTargetTemperature: function(body, callback) {
