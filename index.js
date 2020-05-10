@@ -52,6 +52,9 @@ SamsungAirco1.prototype = {
 
         //현재 모드 설정
         this.aircoSamsung.getCharacteristic(Characteristic.TargetHeaterCoolerState)
+	.setProps({
+                validValues: [2]
+            })
             .on('get', this.getTargetHeaterCoolerState.bind(this))       
             .on('set', this.setTargetHeaterCoolerState.bind(this));
    
@@ -68,36 +71,11 @@ SamsungAirco1.prototype = {
             })
             .on('get', this.getTargetTemperature.bind(this))
             .on('set', this.setTargetTemperature.bind(this)); 
-
-        //난방모드 온도        
-         this.aircoSamsung.getCharacteristic(Characteristic.HeatingThresholdTemperature)
-            .setProps({
-                minValue: 18,
-                maxValue: 30,
-                minStep: 1
-            })
-            .on('get', this.getTargetTemperature.bind(this))
-            .on('set', this.setTargetTemperature.bind(this)); 
         
         //스윙모드 설정
         this.aircoSamsung.getCharacteristic(Characteristic.SwingMode)
             .on('get', this.getSwingMode.bind(this))
             .on('set', this.setSwingMode.bind(this));  
-
-        //자동청소 설정
-        this.aircoSamsung.getCharacteristic(Characteristic.LockPhysicalControls)
-            .on('get', this.getLockPhysicalControls.bind(this))
-            .on('set', this.setLockPhysicalControls.bind(this));  
-    
-        //바람세기 설정        
-        this.aircoSamsung.getCharacteristic(Characteristic.RotationSpeed)
-            .setProps({
-                minValue: 0,
-                maxValue: 2,
-                minStep: 1,
-            })
-            .on('get', this.getRotationSpeed.bind(this))
-            .on('set', this.setRotationSpeed.bind(this));
 		
         var informationService = new Service.AccessoryInformation()
             .setCharacteristic(Characteristic.Manufacturer, 'Samsung')
@@ -155,125 +133,6 @@ SamsungAirco1.prototype = {
                 //this.log("현재 온도: " + body);
             }
         }.bind(this));
-    },
-
-    getRotationSpeed: function(callback) {
-	var str;
-	var body;
-        str = 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure -X GET https://' + this.ip + ':8888/devices|jq \'.Devices[0].Wind.speedLevel\'';
-
-        this.execRequest(str, body, function(error, stdout, stderr) {
-            if (error) {
-                callback(error);
-            } else {
-                body = parseInt(stdout);
-            if (body == 0) {
-                callback(null, 2);
-                //this.log("자동풍 확인");
-            } else if (body == 1 || body == 2 || body == 3 || body == 4) {
-                //this.log("미풍 등 확인");
-                callback(null, 1);
-            } else
-		this.log("풍속 확인 오류");
-            }
-        }.bind(this));
-    },
-    
-    setRotationSpeed: function(state, callback) {
-
-        switch (state) {
-
-            case 2:
-	        var str;
-	        var body;
-                //this.log("자동풍 설정")
-                str = 'curl -X PUT -d \'{"speedLevel": 0}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1/wind';
- 
-	        this.execRequest(str, body, function(error, stdout, stderr) {
-                    if (error) {
-                        callback(error);
-                    } else {
-                        callback();
-                    }
-                }.bind(this));
-                break;
-
-            case 1:
-	        var str;
-	        var body;
-                //this.log("미풍 설정")
-                str = 'curl -X PUT -d \'{"speedLevel": 1}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1/wind';
-
-                this.execRequest(str, body, function(error, stdout, stderr) {
-                    if (error) {
-                        callback(error);
-                    } else {
-                        callback();
-                    }
-                }.bind(this));
-                break;
-                            
-        }
-    },
-    
-    getLockPhysicalControls: function(callback) {
-	var str;
-	var body;
-        str = 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure -X GET https://' + this.ip + ':8888/devices|jq \'.Devices[0].Mode.options[2]\'';
-
-        this.execRequest(str, body, function(error, stdout, stderr) {
-            if (error) {
-                callback(error);
-            } else {
-                body = stdout;
-	        body = body.substr(1, body.length - 3);
-            if (body == "Autoclean_Off") {
-                callback(null, Characteristic.LockPhysicalControls.CONTROL_LOCK_DISABLED);
-                //this.log("자동청소해제 확인");
-            } else if (body == "Autoclean_On") {
-                //this.log("자동청소 확인");
-                callback(null, Characteristic.LockPhysicalControls.CONTROL_LOCK_ENABLED);
-            } else
-                this.log("자동청소 확인 오류");
-            }
-        }.bind(this));
-
-    },
-    
-    setLockPhysicalControls: function(state, callback) {
-
-        switch (state) {
-
-            case Characteristic.LockPhysicalControls.CONTROL_LOCK_ENABLED:
-	        var str;
-	        var body;
-                //this.log("자동청소 설정")
-                str = 'curl -X PUT -d \'{"options": ["Autoclean_On"]}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1/mode';
-
-                this.execRequest(str, body, function(error, stdout, stderr) {
-                    if (error) {
-                        callback(error);
-                    } else {
-                        callback();
-                    }
-                }.bind(this));
-                break;
-
-            case Characteristic.LockPhysicalControls.CONTROL_LOCK_DISABLED:
-	        var str;
-	        var body;
-                //this.log("자동청소해제 설정")
-                str = 'curl -X PUT -d \'{"options": ["Autoclean_Off"]}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1/mode';
- 
-                this.execRequest(str, body, function(error, stdout, stderr) {
-                    if (error) {
-                        callback(error);
-                    } else {
-                        callback();
-                    }
-                }.bind(this));
-                break;
-        }
     },
 	
     getSwingMode: function(callback) {
@@ -407,15 +266,9 @@ SamsungAirco1.prototype = {
             } else {
                 body = stdout;
 	        body = body.substr(1, body.length - 3);
-                if (body == "CoolClean" || body == "Cool") {
+               if (body == "CoolClean" || body == "Cool" || body == "DryClean" || body == "Dry" || body == "Auto" || body == "Wind") {
                     //this.log("냉방청정모드 확인");                	
                     callback(null, Characteristic.CurrentHeaterCoolerState.COOLING);
-                } else if (body == "DryClean" || body == "Dry") {
-                    //this.log("제습청정모드 확인");                	
-                    callback(null, Characteristic.CurrentHeaterCoolerState.HEATING);
-                } else if (body == "Auto" || body == "Wind") {
-                   // this.log("공기청정모드 확인");
-                    callback(null, Characteristic.CurrentHeaterCoolerState.IDLE);
                 } else
 		    this.log("현재 모드 확인 오류");      
             }
@@ -433,15 +286,9 @@ SamsungAirco1.prototype = {
             } else {
                 body = stdout;
 	        body = body.substr(1, body.length - 3);
-                if (body == "CoolClean" || body == "Cool") {
+                if (body == "CoolClean" || body == "Cool" || body == "DryClean" || body == "Dry" || body == "Auto" || body == "Wind") {
                     //this.log("냉방청정모드 확인");                	
                     callback(null, Characteristic.TargetHeaterCoolerState.COOL);
-                } else if (body == "DryClean" || body == "Dry") {
-                    //this.log("제습청정모드 확인");                	
-                    callback(null, Characteristic.TargetHeaterCoolerState.HEAT);
-                } else if (body == "Auto" || body == "Wind") {
-                    //this.log("공기청정모드 확인");
-                    callback(null, Characteristic.TargetHeaterCoolerState.AUTO);
                 } else
 		    this.log("목표 모드 확인 오류");      
             }
@@ -451,38 +298,6 @@ SamsungAirco1.prototype = {
     setTargetHeaterCoolerState: function(state, callback) {
 
         switch (state) {
-
-            case Characteristic.TargetHeaterCoolerState.AUTO:
-	        var str;
-	        var body;
-                //this.log("공기청정모드로 설정");
-                str = 'curl -X PUT -d \'{"modes": ["Wind"]}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1/mode';
-                this.aircoSamsung.getCharacteristic(Characteristic.CurrentHeaterCoolerState).updateValue(1);
-			
-	    this.execRequest(str, body, function(error, stdout, stderr) {
-                    if (error) {
-                        callback(error);
-                    } else {
-                        callback();
-                    }
-                }.bind(this));
-                break;
-
-            case Characteristic.TargetHeaterCoolerState.HEAT:
-	        var str;
-	        var body;
-                //this.log("제습청정모드로 설정");
-                str = 'curl -X PUT -d \'{"modes": ["DryClean"]}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1/mode';
-                this.aircoSamsung.getCharacteristic(Characteristic.CurrentHeaterCoolerState).updateValue(2);
-			
-                this.execRequest(str, body, function(error, stdout, stderr) {
-                    if (error) {
-                        callback(error);
-                    } else {
-                        callback();
-                    }
-                }.bind(this));
-                break;
                 
             case Characteristic.TargetHeaterCoolerState.COOL:
 	        var str;
