@@ -125,7 +125,7 @@ SamsungAirco1.prototype = {
             if (error) {
                 callback(error);
             } else {
-                callback();
+                callback(null, body);
                 //this.log("희망온도 설정 : " + body);
             }
         }.bind(this));
@@ -185,7 +185,7 @@ SamsungAirco1.prototype = {
                     if (error) {
                         callback(error);
                     } else {
-                        callback();
+                        callback(null, body);
                     }
                 }.bind(this));
                 break;
@@ -200,7 +200,7 @@ SamsungAirco1.prototype = {
                     if (error) {
                         callback(error);
                     } else {
-                        callback();
+                        callback(null, body);
                     }
                 }.bind(this));
                 break;
@@ -246,7 +246,7 @@ SamsungAirco1.prototype = {
                     if (error) {
                         callback(error);
                     } else {
-                        callback();
+                        callback(null, body);
                     }
                 }.bind(this));
                 break;
@@ -261,7 +261,7 @@ SamsungAirco1.prototype = {
                     if (error) {
                         callback(error);
                     } else {
-                        callback();
+                        callback(null, body);
                     }
                 }.bind(this));
                 break;
@@ -306,7 +306,7 @@ SamsungAirco1.prototype = {
                     if (error) {
                         callback(error);
                     } else {
-                        callback();
+                        callback(null, body);
                     }
                 }.bind(this));
                 break;
@@ -320,7 +320,7 @@ SamsungAirco1.prototype = {
                     if (error) {
                         callback(error);
                     } else {
-                        callback();
+                        callback(null, body);
                     }
                 }.bind(this));
                 break;
@@ -394,7 +394,7 @@ SamsungAirco1.prototype = {
                     if (error) {
                         callback(error);
                     } else {
-                        callback();
+                        callback(null, body);
                     }
                 }.bind(this));
                 break;
@@ -410,7 +410,7 @@ SamsungAirco1.prototype = {
                     if (error) {
                         callback(error);
                     } else {
-                        callback();
+                        callback(null, body);
                     }
                 }.bind(this));
                 break;
@@ -426,7 +426,7 @@ SamsungAirco1.prototype = {
                     if (error) {
                         callback(error);
                     } else {
-                        callback();
+                        callback(null, body);
                     }
                 }.bind(this));
                 break;
