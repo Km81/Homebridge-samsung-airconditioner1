@@ -301,6 +301,7 @@ SamsungAirco1.prototype = {
 	        var str;
 	        var body;
                 //this.log("켜기 설정");
+		str = null
                 //str = 'curl -X PUT -d \'{"Operation": {"power" : "On"}}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1';
                 this.execRequest(str, body, function(error, stdout, stderr) {
                     if (error) {
