@@ -331,7 +331,7 @@ SamsungAirco1.prototype = {
             } else {
                 body = stdout;
 	        body = body.substr(1, body.length - 3);
-                if (body == "CoolClean" || this.response == "Cool" || this.response == "Dry" || this.response == "DryClean" || this.response == "Auto" || this.response == "Wind") {
+                if (body == "CoolClean" || body == "Cool" || body == "Dry" || body == "DryClean" || body == "Auto" || body == "Wind") {
                     //this.log("제습청정모드 확인");                	
                     callback(null, Characteristic.CurrentHeaterCoolerState.COOLING);
                 } else
@@ -351,7 +351,7 @@ SamsungAirco1.prototype = {
             } else {
                 body = stdout;
 	        body = body.substr(1, body.length - 3);
-                if (body == "CoolClean" || this.response == "Cool" || this.response == "Dry" || this.response == "DryClean" || this.response == "Auto" || this.response == "Wind") {
+                if (body == "CoolClean" || body == "Cool" || body == "Dry" || body == "DryClean" || body == "Auto" || body == "Wind") {
                     //this.log("제습청정모드 확인");                	
                     callback(null, Characteristic.TargetHeaterCoolerState.COOL);
                 } else
