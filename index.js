@@ -5,7 +5,6 @@ module.exports = function(homebridge) {
     Service = homebridge.hap.Service;
     Characteristic = homebridge.hap.Characteristic;
     Accessory = homebridge.hap.Accessory;
-    //UUIDGen = homebridge.hap.uuid;
     homebridge.registerAccessory('homebridge-samsung-airconditioner1', 'SamsungAirconditioner1', SamsungAirco1);
 }
 
@@ -15,33 +14,43 @@ function SamsungAirco1(log, config) {
     this.ip = config["ip"];
     this.token = config["token"];
     this.patchCert = config["patchCert"];
+    this.baseUrl = `https://${this.ip}:8888/devices`; // Base URL for the API
 }
 
 SamsungAirco1.prototype = {
 
-    execRequest: function(str, body, callback) {
-        exec2(str, function(error, stdout, stderr) {
-            callback(error, stdout, stderr)
-        })
-        //return stdout;
+    execRequest: function(command) {
+        return new Promise((resolve, reject) => {
+            exec2(command, (error, stdout, stderr) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve(stdout);
+                }
+            });
+        });
     },
+
+    buildCurlCommand: function(endpoint, method = 'GET', data = null) {
+        let command = `curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer ${this.token}" --cert ${this.patchCert} --insecure -X ${method} ${this.baseUrl}${endpoint}`;
+        if (data) {
+            command += ` -d '${JSON.stringify(data)}'`;
+        }
+        return command;
+    },
+
     identify: function(callback) {
         this.log("장치 확인됨");
         callback(); // success
     },
 
     getServices: function() {
-
-        //var uuid;
-        //uuid = UUIDGen.generate(this.accessoryName);
         this.aircoSamsung = new Service.HeaterCooler(this.name);
 
-        //전원 설정
         this.aircoSamsung.getCharacteristic(Characteristic.Active)
             .on('get', this.getActive.bind(this))
             .on('set', this.setActive.bind(this));
 
-        //현재 온도
         this.aircoSamsung.getCharacteristic(Characteristic.CurrentTemperature)
             .setProps({
                 minValue: 0,
@@ -50,19 +59,16 @@ SamsungAirco1.prototype = {
             })
             .on('get', this.getCurrentTemperature.bind(this));
 
-        //현재 모드 설정
         this.aircoSamsung.getCharacteristic(Characteristic.TargetHeaterCoolerState)
-	    .setProps({
-		validValues: [2]
-	    })
-            .on('get', this.getTargetHeaterCoolerState.bind(this))       
+            .setProps({
+                validValues: [2]
+            })
+            .on('get', this.getTargetHeaterCoolerState.bind(this))
             .on('set', this.setTargetHeaterCoolerState.bind(this));
-   
-        //현재 모드 확인
-        this.aircoSamsung.getCharacteristic(Characteristic.CurrentHeaterCoolerState) 
+
+        this.aircoSamsung.getCharacteristic(Characteristic.CurrentHeaterCoolerState)
             .on('get', this.getCurrentHeaterCoolerState.bind(this));
 
-        //냉방모드 온도
         this.aircoSamsung.getCharacteristic(Characteristic.CoolingThresholdTemperature)
             .setProps({
                 minValue: 18,
@@ -70,249 +76,146 @@ SamsungAirco1.prototype = {
                 minStep: 1
             })
             .on('get', this.getTargetTemperature.bind(this))
-            .on('set', this.setTargetTemperature.bind(this)); 
-        
-        //스윙모드 설정
+            .on('set', this.setTargetTemperature.bind(this));
+
         this.aircoSamsung.getCharacteristic(Characteristic.SwingMode)
             .on('get', this.getSwingMode.bind(this))
-            .on('set', this.setSwingMode.bind(this));  
-		
+            .on('set', this.setSwingMode.bind(this));
+
         var informationService = new Service.AccessoryInformation()
             .setCharacteristic(Characteristic.Manufacturer, 'Samsung')
             .setCharacteristic(Characteristic.Model, 'Air conditioner')
             .setCharacteristic(Characteristic.SerialNumber, 'AF16K7970WFN');
-	    
-	    
+
         return [informationService, this.aircoSamsung];
     },
 
-    //services
-
-    getTargetTemperature: function(callback) {
-	var str;
-	var body;
-        str = 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure -X GET https://' + this.ip + ':8888/devices|jq \'.Devices[0].Temperatures[0].desired\'';
-
-        this.execRequest(str, body, function(error, stdout, stderr) {
-            if (error) {
-                callback(error);
-            } else {
-                body = parseInt(stdout);
-                callback(null, body);
-                //this.log("희망온도 확인 : " + body);
-            }
-        }.bind(this))
-    },
-
-    setTargetTemperature: function(body, callback) {
-	var str;
-	var body;	 
-        str = 'curl -X PUT -d \'{"desired": ' + body + '}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1/temperatures/0';
-
-        this.execRequest(str, body, function(error, stdout, stderr) {
-            if (error) {
-                callback(error);
-            } else {
-                callback(null, body);
-                //this.log("희망온도 설정 : " + body);
-            }
-        }.bind(this));
-    },
-    
-    getCurrentTemperature: function(callback) {
-	var str;
-	var body;
-        str = 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure -X GET https://' + this.ip + ':8888/devices|jq \'.Devices[0].Temperatures[0].current\'';
- 
-        this.execRequest(str, body, function(error, stdout, stderr) {
-            if (error) {
-                callback(error);
-            } else {
-                body = parseInt(stdout);
-                callback(null, body);
-                //this.log("현재 온도: " + body);
-            }
-        }.bind(this));
-    },
-	
-    getSwingMode: function(callback) {
-	var str;
-	var body;
-        str = 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure -X GET https://' + this.ip + ':8888/devices|jq \'.Devices[0].Wind.direction\'';
-
-
-        this.execRequest(str, body, function(error, stdout, stderr) {
-            if (error) {
-                callback(error);
-            } else {
-                body = stdout;
-	        body = body.substr(1, body.length - 3);
-            if (body == "Fix") {
-                callback(null, Characteristic.SwingMode.SWING_DISABLED);
-                //this.log("고정 확인");
-            } else if (body == "Up_And_Low") {
-                //this.log("회전 확인");
-                callback(null, Characteristic.SwingMode.SWING_ENABLED);
-            } else
-		this.log("회전 확인 오류");
-            }
-        }.bind(this));
-
-    },
-    
-    setSwingMode: function(state, callback) {
-
-        switch (state) {
-
-            case Characteristic.SwingMode.SWING_ENABLED:
-	        var str;
-	        var body;
-                //this.log("회전 설정")
-                str = 'curl -X PUT -d \'{"direction": "Up_And_Low"}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1/wind';
-
-                this.execRequest(str, body, function(error, stdout, stderr) {
-                    if (error) {
-                        callback(error);
-                    } else {
-                        callback(null, body);
-                    }
-                }.bind(this));
-                break;
-
-            case Characteristic.SwingMode.SWING_DISABLED:
-	        var str;
-	        var body;
-                //this.log("고정 설정")
-                str = 'curl -X PUT -d \'{"direction": "Fix"}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1/wind';
- 
-                this.execRequest(str, body, function(error, stdout, stderr) {
-                    if (error) {
-                        callback(error);
-                    } else {
-                        callback(null, body);
-                    }
-                }.bind(this));
-                break;
+    async getTargetTemperature(callback) {
+        try {
+            const command = this.buildCurlCommand('|jq \'.Devices[0].Temperatures[0].desired\'');
+            const stdout = await this.execRequest(command);
+            const temperature = parseInt(stdout);
+            callback(null, temperature);
+        } catch (error) {
+            callback(error);
         }
     },
-    
-    getActive: function(callback) {
-	var str;
-	var body;
-        str = 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure -X GET https://' + this.ip + ':8888/devices|jq \'.Devices[0].Operation.power\'';
 
+    async setTargetTemperature(value, callback) {
+        try {
+            const command = this.buildCurlCommand('/1/temperatures/0', 'PUT', { desired: value });
+            await this.execRequest(command);
+            callback(null, value);
+        } catch (error) {
+            callback(error);
+        }
+    },
 
-        this.execRequest(str, body, function(error, stdout, stderr) {
-            if (error) {
-                callback(error);
+    async getCurrentTemperature(callback) {
+        try {
+            const command = this.buildCurlCommand('|jq \'.Devices[0].Temperatures[0].current\'');
+            const stdout = await this.execRequest(command);
+            const temperature = parseInt(stdout);
+            callback(null, temperature);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    async getSwingMode(callback) {
+        try {
+            const command = this.buildCurlCommand('|jq \'.Devices[0].Wind.direction\'');
+            const stdout = await this.execRequest(command);
+            const mode = stdout.trim().replace(/"/g, '');
+            if (mode === "Fix") {
+                callback(null, Characteristic.SwingMode.SWING_DISABLED);
+            } else if (mode === "Up_And_Low") {
+                callback(null, Characteristic.SwingMode.SWING_ENABLED);
             } else {
-                body = stdout;
-	        body = body.substr(1, body.length - 3);
-            if (body == "Off") {
-                callback(null, Characteristic.Active.INACTIVE);
-                //this.log("비활성화 확인");
-            } else if (body == "On") {
-                //this.log("활성화 확인");
-                callback(null, Characteristic.Active.ACTIVE);
-            } else
-		this.log("활성화 확인 오류");
+                this.log("회전 확인 오류");
+                callback(new Error("Invalid Swing Mode"));
             }
-        }.bind(this));
-
-    },
-	
-    setActive: function(state, callback) {
-
-        switch (state) {
-
-            case Characteristic.Active.ACTIVE:
-	        var str;
-	        var body;
-                //this.log("켜기 설정");
-                str = 'curl -X PUT -d \'{"Operation": {"power" : "On"}}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1';
-                this.execRequest(str, body, function(error, stdout, stderr) {
-                    if (error) {
-                        callback(error);
-                    } else {
-                        callback(null, body);
-                    }
-                }.bind(this));
-                break;
-
-            case Characteristic.Active.INACTIVE:
-	        var str;
-	        var body;
-                //this.log("끄기 설정");
-                str = 'curl -X PUT -d \'{"Operation": {"power" : "Off"}}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1';
-                this.execRequest(str, body, function(error, stdout, stderr) {
-                    if (error) {
-                        callback(error);
-                    } else {
-                        callback(null, body);
-                    }
-                }.bind(this));
-                break;
-         }
+        } catch (error) {
+            callback(error);
+        }
     },
 
-    getCurrentHeaterCoolerState: function(callback) {
-	var str;
-	var body;
-        str = 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure -X GET https://' + this.ip + ':8888/devices|jq \'.Devices[0].Mode.modes[0]\'';
- 
-        this.execRequest(str, body, function(error, stdout, stderr) {
-            if (error) {
-                callback(error);
+    async setSwingMode(state, callback) {
+        try {
+            const direction = state === Characteristic.SwingMode.SWING_ENABLED ? "Up_And_Low" : "Fix";
+            const command = this.buildCurlCommand('/1/wind', 'PUT', { direction });
+            await this.execRequest(command);
+            callback(null);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    async getActive(callback) {
+        try {
+            const command = this.buildCurlCommand('|jq \'.Devices[0].Operation.power\'');
+            const stdout = await this.execRequest(command);
+            const powerState = stdout.trim().replace(/"/g, '');
+            const isActive = powerState === "On" ? Characteristic.Active.ACTIVE : Characteristic.Active.INACTIVE;
+            callback(null, isActive);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    async setActive(state, callback) {
+        try {
+            const power = state === Characteristic.Active.ACTIVE ? "On" : "Off";
+            const command = this.buildCurlCommand('/1', 'PUT', { Operation: { power } });
+            await this.execRequest(command);
+            callback(null);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    async getCurrentHeaterCoolerState(callback) {
+        try {
+            const command = this.buildCurlCommand('|jq \'.Devices[0].Mode.modes[0]\'');
+            const stdout = await this.execRequest(command);
+            const mode = stdout.trim().replace(/"/g, '');
+            if (["CoolClean", "Cool", "Dry", "DryClean", "Auto", "Wind"].includes(mode)) {
+                callback(null, Characteristic.CurrentHeaterCoolerState.COOLING);
             } else {
-                body = stdout;
-	        body = body.substr(1, body.length - 3);
-                if (body == "CoolClean" || body == "Cool" || body == "Dry" || body == "DryClean" || body == "Auto" || body == "Wind") {
-                    //this.log("제습청정모드 확인");                	
-                    callback(null, Characteristic.CurrentHeaterCoolerState.COOLING);
-                } else
-		    this.log("현재 모드 확인 오류");      
+                this.log("현재 모드 확인 오류");
+                callback(new Error("Invalid Heater Cooler State"));
             }
-        }.bind(this));
+        } catch (error) {
+            callback(error);
+        }
     },
-	
-     getTargetHeaterCoolerState: function(callback) {
-	var str;
-	var body;
-        str = 'curl -s -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure -X GET https://' + this.ip + ':8888/devices|jq \'.Devices[0].Mode.modes[0]\'';
- 
-        this.execRequest(str, body, function(error, stdout, stderr) {
-            if (error) {
-                callback(error);
-            } else {
-                body = stdout;
-	        body = body.substr(1, body.length - 3);
-                if (body == "CoolClean" || body == "Cool" || body == "Dry" || body == "DryClean" || body == "Auto" || body == "Wind") {
-                    //this.log("제습청정모드 확인");                	
-                    callback(null, Characteristic.TargetHeaterCoolerState.COOL);
-                } else
-		    this.log("목표 모드 확인 오류");      
-            }
-        }.bind(this));
-    },
-    
-    setTargetHeaterCoolerState: function(state, callback) {
 
-        switch (state) {                
-            case Characteristic.TargetHeaterCoolerState.COOL:
-	        var str;
-	        var body;
-                //this.log("제습청정모드로 설정");
-                str = 'curl -X PUT -d \'{"modes": ["DryClean"]}\' -v -k -H "Content-Type: application/json" -H "Authorization: Bearer ' + this.token + '" --cert ' + this.patchCert + ' --insecure https://' + this.ip + ':8888/devices/1/mode';
-                this.aircoSamsung.getCharacteristic(Characteristic.CurrentHeaterCoolerState).updateValue(3);
-			
-                this.execRequest(str, body, function(error, stdout, stderr) {
-                    if (error) {
-                        callback(error);
-                    } else {
-                        callback(null, body);
-                    }
-                }.bind(this));
-                break;
+    async getTargetHeaterCoolerState(callback) {
+        try {
+            const command = this.buildCurlCommand('|jq \'.Devices[0].Mode.modes[0]\'');
+            const stdout = await this.execRequest(command);
+            const mode = stdout.trim().replace(/"/g, '');
+            if (["CoolClean", "Cool", "Dry", "DryClean", "Auto", "Wind"].includes(mode)) {
+                callback(null, Characteristic.TargetHeaterCoolerState.COOL);
+            } else {
+                this.log("목표 모드 확인 오류");
+                callback(new Error("Invalid Target Heater Cooler State"));
+            }
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    async setTargetHeaterCoolerState(state, callback) {
+        if (state === Characteristic.TargetHeaterCoolerState.COOL) {
+            try {
+                const command = this.buildCurlCommand('/1/mode', 'PUT', { modes: ["DryClean"] });
+                await this.execRequest(command);
+                this.aircoSamsung.getCharacteristic(Characteristic.CurrentHeaterCoolerState).updateValue(Characteristic.CurrentHeaterCoolerState.COOLING);
+                callback(null);
+            } catch (error) {
+                callback(error);
+            }
         }
     }
-}
+};
